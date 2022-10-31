@@ -135,7 +135,6 @@ def sanity_check():
     interval_b = (3, 5)
     interval_c = (4, 5)
     interval_d = (6, 7)
-    interval_f = (3, 6)
     """ Test helper functions """
     print("[RUN    ] Test helper functions")
     assert(overlaps(interval_a, interval_b))
