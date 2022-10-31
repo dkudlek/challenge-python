@@ -24,11 +24,11 @@ SOFTWARE.
 
 
 """
-Given a list of intervals:
+Given a list of intervals: 
 We want to know if there's one interval which doesn't overlap with another interval
 
 An interval overlaps if end of one and start of the other are the equal (closed interval, including start and end value)
-e.g.
+e.g. 
 - [0, 3] and [1, 2] overlap
 - [0, 3] and [3, 5] overlap
 - [0, 3] and [4, 6] don't overlap
@@ -61,11 +61,11 @@ def overlaps(first_interval, second_interval):
 def naive_search(list_of_intervals):
     """
     Naive approach with: O(N * N)
-
+        
     Compare each intervale with all other intervals.
     Early exit when we find one interval that doesn't overlap with an other interval from the
     list.
-
+    
     """
     for idx, interval in enumerate(list_of_intervals):
         has_overlap = False
@@ -102,24 +102,24 @@ def dynamic_search(list_of_intervals):
     high = 0
     idx_max = len(list_of_intervals) - 1
     for (idx, interval) in enumerate(list_of_intervals):
-        if idx == 0:
+        if idx == 0: 
             low = interval[0]
             high = interval[1]
             found = True
             continue
         has_overlap = overlaps((low, high), interval)
         if has_overlap:
-            if interval[1] > high:
+            if interval[1] > high:  
                 high = interval[1]
             found = False
-        else:
-            if idx == 1:
+        else: 
+            if idx == 1: 
                 """ First is single """
                 return (True, (low, high))
             elif idx == idx_max:
                 """ Last is single """
                 return (True, interval)
-            elif found == True:
+            elif found == True: 
                 """ Single in the middle """
                 return (True, (low, high))
             low = interval[0]
@@ -153,7 +153,7 @@ def run_small_examples():
     unmatched_last = [(4,6), (5,7), (7,10), (25,50)]
     unmatched_middle = [(3,5), (4,6),(7,9) ,(10,30), (10,20)]
     matched = [(1,3), (2,4), (3,5), (4,6)]
-
+    
     print("[RUN    ] Sanity check: naive approach")
     result, interval = naive_search(unmatched_first)
     assert(result == True and interval == (0,3))
@@ -165,7 +165,7 @@ def run_small_examples():
     assert(not result)
     print("[SUCCESS] Sanity check: naive approach")
 
-
+    
 
     print("[RUN    ] Sanity check: dynamic approach")
     result, interval = dynamic_search(unmatched_first)
@@ -177,6 +177,16 @@ def run_small_examples():
     result, interval = dynamic_search(matched)
     assert(not result)
     print("[SUCCESS] Sanity check: dynamic approach")
+
+def s_to_min(val):
+    return int(round(val /60))
+
+def s_to_us(val):
+    return int(round(val * 1000000))
+
+
+def s_to_ms(val):
+    return int(round(val * 1000))
 
 def s_to_timeformat(val):
     hours = int(val // 360)
@@ -191,7 +201,7 @@ def execute_test(list):
     end = time.time()
     delta_naive = end - start
     print("[SUCCESS] Execute test: naive approach with '{}'".format(naive_result))
-
+    
 
     print("[RUN    ] Execute test: dynamic approach")
     start = time.time()
@@ -201,7 +211,7 @@ def execute_test(list):
     print("[SUCCESS] Execute test: dynamic approach with '{}'".format(dynamic_result))
 
     assert(naive_result == dynamic_result)
-    """Print results"""
+    """Print results""" 
     print("[EVAL   ] Naive Approach took    {} || {:12}us".format(s_to_timeformat(delta_naive),s_to_us(delta_naive)))
     print("[EVAL   ] Dynamic Approach took  {} || {:12}us".format(s_to_timeformat(delta_dynamic), s_to_us(delta_dynamic)))
 
@@ -212,20 +222,20 @@ def execute_random_tests(n):
         max_size = 2 ** 20
         for i in range(0, 1000000):
             rand_one = random.randrange(2**32)
-            rand_two = random.randrange(2**32)
+            rand_two = random.randrange(2**32) 
             if rand_one > rand_two:
                 delta = abs(rand_one - rand_two) - max_size
                 if delta > 0:
-                    rand_one = rand_two + max_size
+                    rand_one = rand_two + max_size         
                 test_data.append((rand_two, rand_one))
             else:
                 delta = abs(rand_one - rand_two) - max_size
                 if delta > 0:
-                    rand_two = rand_one + max_size
+                    rand_two = rand_one + max_size    
                 test_data.append((rand_one, rand_two))
         execute_test(test_data)
 
-def read_from_disk(file_name):
+def read_from_disk(file_name):   
     input_list = []
     with open(file_name, newline='') as csvfile:
         file_reader = csv.reader(csvfile, dialect='excel')
@@ -237,10 +247,10 @@ def read_from_disk(file_name):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find an interval that doesn't overlap with any other interval in a list")
-    parser.add_argument('--file-with-overlap', type=str, default="overlap.csv")
-    parser.add_argument('--file-without-overlap', type=str, default="no_overlap.csv")
-    parser.add_argument('--number-of-rand-runs', type=int, default=0)
-
+    parser.add_argument('--file-with-overlap', type=str, default="overlap.csv") 
+    parser.add_argument('--file-without-overlap', type=str, default="no_overlap.csv") 
+    parser.add_argument('--number-of-rand-runs', type=int, default=0) 
+  
     args = parser.parse_args()
 
 
