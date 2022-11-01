@@ -50,6 +50,11 @@ import time
 import random
 import argparse
 import csv
+from enum import Enum 
+
+class Methode(Enum):
+    NAIVE=1
+    DYNAMIC=2
 
 def overlaps(first_interval, second_interval):
     if second_interval[0] <= first_interval[1] and second_interval[1] >= first_interval[0]:
@@ -128,6 +133,12 @@ def dynamic_search(list_of_intervals):
 
     return (False, None)
 
+def has_overlapping_intervals(list_of_intervals, mode):
+    if mode == Methode.NAIVE:
+        return naive_search(list_of_intervals)
+    elif mode == Methode.DYNAMIC:
+        return dynamic_search(list_of_intervals)
+
 def sanity_check():
     """ Sanity check """
     print("[RUN    ] Sanity check")
@@ -154,26 +165,26 @@ def run_small_examples():
     matched = [(1,3), (2,4), (3,5), (4,6)]
     
     print("[RUN    ] Sanity check: naive approach")
-    result, interval = naive_search(unmatched_first)
+    result, interval = has_overlapping_intervals(unmatched_first, Methode.NAIVE)
     assert(result == True and interval == (0,3))
-    result, interval = naive_search(unmatched_last)
+    result, interval = has_overlapping_intervals(unmatched_last, Methode.NAIVE)
     assert(result == True and interval == (25,50))
-    result, interval = naive_search(unmatched_middle)
+    result, interval = has_overlapping_intervals(unmatched_middle, Methode.NAIVE)
     assert(result == True and interval == (7,9))
-    result, interval = naive_search(matched)
+    result, interval = has_overlapping_intervals(matched, Methode.NAIVE)
     assert(not result)
     print("[SUCCESS] Sanity check: naive approach")
 
     
 
     print("[RUN    ] Sanity check: dynamic approach")
-    result, interval = dynamic_search(unmatched_first)
+    result, interval = has_overlapping_intervals(unmatched_first, Methode.DYNAMIC)
     assert(result == True and interval == (0,3))
-    result, interval = dynamic_search(unmatched_last)
+    result, interval = has_overlapping_intervals(unmatched_last, Methode.DYNAMIC)
     assert(result == True and interval == (25,50))
-    result, interval = dynamic_search(unmatched_middle)
+    result, interval = has_overlapping_intervals(unmatched_middle, Methode.DYNAMIC)
     assert(result == True and interval == (7,9))
-    result, interval = dynamic_search(matched)
+    result, interval = has_overlapping_intervals(matched, Methode.DYNAMIC)
     assert(not result)
     print("[SUCCESS] Sanity check: dynamic approach")
 
@@ -196,7 +207,7 @@ def s_to_timeformat(val):
 def execute_test(list):
     print("[RUN    ] Execute test: naive approach")
     start = time.time()
-    naive_result, interval = naive_search(list)
+    naive_result, interval = has_overlapping_intervals(list, Methode.NAIVE)
     end = time.time()
     delta_naive = end - start
     print("[SUCCESS] Execute test: naive approach with '{}'".format(naive_result))
@@ -204,7 +215,7 @@ def execute_test(list):
 
     print("[RUN    ] Execute test: dynamic approach")
     start = time.time()
-    dynamic_result, interval = dynamic_search(list)
+    dynamic_result, interval = has_overlapping_intervals(list, Methode.DYNAMIC)
     end = time.time()
     delta_dynamic = end - start
     print("[SUCCESS] Execute test: dynamic approach with '{}'".format(dynamic_result))
@@ -263,8 +274,8 @@ if __name__ == "__main__":
     print("[#######]")
     print("[RUN    ] Test without overlap")
     example_without_overlap = read_from_disk(args.file_without_overlap)
-    print("[SUCCESS] Test without overlap")
     execute_test(example_without_overlap)
+    print("[SUCCESS] Test without overlap")
 
     """ Start actual function """
 
