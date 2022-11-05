@@ -63,6 +63,8 @@ Notes:
            = 15 - 6 - (5 - 1 - 2) * 3 = 9 - (2 * 3) = 3 
 
 """
+import time
+import random
 from enum import Enum 
 
 class Methode(Enum):
@@ -216,19 +218,56 @@ def sanity_check():
     assert(level_buildings([1, -1], Methode.DYNAMIC) is None)
     print("[SUCCESS] Sanity check: Negative levels")
     """
-    Negative numbers
+    Empty list
     """
     assert(level_buildings([], Methode.NAIVE) is None)
     assert(level_buildings([], Methode.DYNAMIC) is None)
     print("[SUCCESS] Sanity check: Empty list")
     """
-    Negative numbers
+    One element
     """
     assert(level_buildings([1], Methode.NAIVE) == 0)
     assert(level_buildings([1], Methode.DYNAMIC) == 0)
     print("[SUCCESS] Sanity check: Single Element")
     
+def s_to_us(val):
+    return int(round(val * 1000000))
+
+def s_to_timeformat(val):
+    hours = int(val // 360)
+    minutes = int(val // 60)
+    seconds = round(val, 6)
+    return "{:02d}:{:02d}:{:09.6f}".format(hours, minutes, seconds)
+
+def execute_test(list):
+    print("[RUN    ] Execute test: naive approach")
+    start = time.time()
+    naive_result = level_buildings(list, Methode.NAIVE)
+    end = time.time()
+    delta_naive = end - start
+    print("[SUCCESS] Execute test: naive approach with '{}'".format(naive_result))
+    
+
+    print("[RUN    ] Execute test: dynamic approach")
+    start = time.time()
+    dynamic_result = level_buildings(list, Methode.DYNAMIC)
+    end = time.time()
+    delta_dynamic = end - start
+    print("[SUCCESS] Execute test: dynamic approach with '{}'".format(dynamic_result))
+
+    assert(naive_result == dynamic_result)
+    """Print results""" 
+    print("[EVAL   ] Naive Approach took    {} || {:12}us".format(s_to_timeformat(delta_naive),s_to_us(delta_naive)))
+    print("[EVAL   ] Dynamic Approach took  {} || {:12}us".format(s_to_timeformat(delta_dynamic), s_to_us(delta_dynamic)))
+
+def execute_random_tests(n):
+    for _ in range(0,n):
+        test_data = []
+        _ = random.seed()
+        for _ in range(0, 10000):
+            test_data.append(random.randrange(2**32))
+        execute_test(test_data)
 
 if __name__ == "__main__":
     sanity_check()
-
+    execute_random_tests(3)

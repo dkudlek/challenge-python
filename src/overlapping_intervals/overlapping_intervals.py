@@ -188,15 +188,8 @@ def run_small_examples():
     assert(not result)
     print("[SUCCESS] Sanity check: dynamic approach")
 
-def s_to_min(val):
-    return int(round(val /60))
-
 def s_to_us(val):
     return int(round(val * 1000000))
-
-
-def s_to_ms(val):
-    return int(round(val * 1000))
 
 def s_to_timeformat(val):
     hours = int(val // 360)
