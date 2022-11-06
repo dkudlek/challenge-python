@@ -65,6 +65,8 @@ Notes:
 """
 import time
 import random
+import argparse
+import csv
 from enum import Enum 
 
 class Methode(Enum):
@@ -117,7 +119,7 @@ def dynamic_approach(list_of_building_heights):
             min_demolished_levels = demolished_levels
     return min_demolished_levels
 
-def level_buildings(list_of_building_heights, methode):
+def run(list_of_building_heights, methode):
     if not list_of_building_heights:
         print("[WARN   ] List is empty!")
         return None 
@@ -147,8 +149,8 @@ def sanity_check():
     """
     building_heights = [1, 2, 3, 4, 5]
     min_levels = 6
-    assert(min_levels == level_buildings(building_heights, Methode.NAIVE))
-    assert(min_levels == level_buildings(building_heights, Methode.DYNAMIC))
+    assert(min_levels == run(building_heights, Methode.NAIVE))
+    assert(min_levels == run(building_heights, Methode.DYNAMIC))
     """
              _
             |x|
@@ -167,8 +169,8 @@ def sanity_check():
     print("[SUCCESS] Sanity check: Default test")
     building_heights = [1, 1, 1, 6, 10]
     min_levels = 7
-    assert(min_levels == level_buildings(building_heights, Methode.NAIVE))
-    assert(min_levels == level_buildings(building_heights, Methode.DYNAMIC))
+    assert(min_levels == run(building_heights, Methode.NAIVE))
+    assert(min_levels == run(building_heights, Methode.DYNAMIC))
     """
      _ _ _ _ _ 
     |o|o|o|o|o|
@@ -187,8 +189,8 @@ def sanity_check():
     print("[SUCCESS] Sanity check: non linear building heights successfull")
     building_heights = [10, 10, 10, 10, 10]
     min_levels = 0
-    assert(min_levels == level_buildings(building_heights, Methode.NAIVE))
-    assert(min_levels == level_buildings(building_heights, Methode.DYNAMIC))
+    assert(min_levels == run(building_heights, Methode.NAIVE))
+    assert(min_levels == run(building_heights, Methode.DYNAMIC))
     """
              _
             |o|
@@ -208,26 +210,26 @@ def sanity_check():
     
     building_heights = [0, 0, 0, 0, 10]
     min_levels = 0
-    assert(min_levels == level_buildings(building_heights, Methode.NAIVE))
-    assert(min_levels == level_buildings(building_heights, Methode.DYNAMIC))
+    assert(min_levels == run(building_heights, Methode.NAIVE))
+    assert(min_levels == run(building_heights, Methode.DYNAMIC))
     print("[SUCCESS] Sanity check: pick last")
     """
     Negative numbers
     """
-    assert(level_buildings([1, -1], Methode.NAIVE) is None)
-    assert(level_buildings([1, -1], Methode.DYNAMIC) is None)
+    assert(run([1, -1], Methode.NAIVE) is None)
+    assert(run([1, -1], Methode.DYNAMIC) is None)
     print("[SUCCESS] Sanity check: Negative levels")
     """
     Empty list
     """
-    assert(level_buildings([], Methode.NAIVE) is None)
-    assert(level_buildings([], Methode.DYNAMIC) is None)
+    assert(run([], Methode.NAIVE) is None)
+    assert(run([], Methode.DYNAMIC) is None)
     print("[SUCCESS] Sanity check: Empty list")
     """
     One element
     """
-    assert(level_buildings([1], Methode.NAIVE) == 0)
-    assert(level_buildings([1], Methode.DYNAMIC) == 0)
+    assert(run([1], Methode.NAIVE) == 0)
+    assert(run([1], Methode.DYNAMIC) == 0)
     print("[SUCCESS] Sanity check: Single Element")
     
 def s_to_us(val):
@@ -242,7 +244,7 @@ def s_to_timeformat(val):
 def execute_test(list):
     print("[RUN    ] Execute test: naive approach")
     start = time.time()
-    naive_result = level_buildings(list, Methode.NAIVE)
+    naive_result = run(list, Methode.NAIVE)
     end = time.time()
     delta_naive = end - start
     print("[SUCCESS] Execute test: naive approach with '{}'".format(naive_result))
@@ -250,7 +252,7 @@ def execute_test(list):
 
     print("[RUN    ] Execute test: dynamic approach")
     start = time.time()
-    dynamic_result = level_buildings(list, Methode.DYNAMIC)
+    dynamic_result = run(list, Methode.DYNAMIC)
     end = time.time()
     delta_dynamic = end - start
     print("[SUCCESS] Execute test: dynamic approach with '{}'".format(dynamic_result))
@@ -268,6 +270,26 @@ def execute_random_tests(n):
             test_data.append(random.randrange(2**32))
         execute_test(test_data)
 
+def read_from_disk(file_name):   
+    input_list = []
+    with open(file_name, newline='') as csvfile:
+        file_reader = csv.reader(csvfile, dialect='excel')
+        for (idx, row) in enumerate(file_reader):
+            if idx == 0:
+                continue
+            input_list.append(int(row[0]))
+    return input_list
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Find an interval that doesn't overlap with any other interval in a list")
+    parser.add_argument('--file', type=str, default="level_buildings.csv") 
+    parser.add_argument('--number-of-rand-runs', type=int, default=0) 
+    args = parser.parse_args()
+    
     sanity_check()
-    execute_random_tests(3)
+    print("[#######]")
+    print("[RUN    ] Test with overlap")
+    level_buildings = read_from_disk(args.file)
+    execute_test(level_buildings)
+
+    execute_random_tests(args.number_of_rand_runs)

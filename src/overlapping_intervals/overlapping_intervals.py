@@ -250,8 +250,8 @@ def read_from_disk(file_name):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find an interval that doesn't overlap with any other interval in a list")
-    parser.add_argument('--file-with-overlap', type=str, default="overlap.csv") 
-    parser.add_argument('--file-without-overlap', type=str, default="no_overlap.csv") 
+    parser.add_argument('--file-with-overlap', type=str, default="overlapping_intervals.csv") 
+    parser.add_argument('--file-without-overlap', type=str, default="no_overlapping_intervals.csv") 
     parser.add_argument('--number-of-rand-runs', type=int, default=0) 
   
     args = parser.parse_args()
@@ -270,7 +270,6 @@ if __name__ == "__main__":
     execute_test(example_without_overlap)
     print("[SUCCESS] Test without overlap")
 
-    """ Start actual function """
 
     execute_random_tests(args.number_of_rand_runs)
 
