@@ -24,11 +24,11 @@ SOFTWARE.
 
 
 """
-Given a list of intervals: 
+Given a list of intervals:
 We want to know if there's one interval which doesn't overlap with another interval
 
 An interval overlaps if end of one and start of the other are the equal (closed interval, including start and end value)
-e.g. 
+e.g.
 - [0, 3] and [1, 2] overlap
 - [0, 3] and [3, 5] overlap
 - [0, 3] and [4, 6] don't overlap
@@ -50,27 +50,35 @@ import time
 import random
 import argparse
 import csv
-from enum import Enum 
+from enum import Enum
+from dataclasses import dataclass
+
+@dataclass(init=True, eq=True)
+class Interval:
+    """Class for keeping track of an item in inventory."""
+    low: int
+    high: int
+
 
 class Methode(Enum):
     NAIVE=1
     DYNAMIC=2
 
-def overlaps(first_interval, second_interval):
-    if second_interval[0] <= first_interval[1] and second_interval[1] >= first_interval[0]:
+def overlaps(first_interval: Interval, second_interval: Interval):
+    if second_interval.low <= first_interval.high and second_interval.high >= first_interval.low:
         return True
-    elif first_interval[0] <= second_interval[1] and first_interval[1] >= second_interval[0]:
+    elif first_interval.low <= second_interval.high and first_interval.high >= second_interval.low:
         return True
     return False
 
 def naive_search(list_of_intervals):
     """
     Naive approach with: O(N * N)
-        
+
     Compare each intervale with all other intervals.
     Early exit when we find one interval that doesn't overlap with an other interval from the
     list.
-    
+
     """
     for idx, interval in enumerate(list_of_intervals):
         has_overlap = False
@@ -85,7 +93,7 @@ def naive_search(list_of_intervals):
     return (False, None)
 
 def tupelize(elem):
-    return (elem[0], elem[1])
+    return (elem.low, elem.high)
 
 def dynamic_search(list_of_intervals):
     """
@@ -107,28 +115,28 @@ def dynamic_search(list_of_intervals):
     high = 0
     idx_max = len(list_of_intervals) - 1
     for (idx, interval) in enumerate(list_of_intervals):
-        if idx == 0: 
-            low = interval[0]
-            high = interval[1]
+        if idx == 0:
+            low = interval.low
+            high = interval.high
             found = True
             continue
-        has_overlap = overlaps((low, high), interval)
+        has_overlap = overlaps(Interval(low, high), interval)
         if has_overlap:
-            if interval[1] > high:  
-                high = interval[1]
+            if interval.high > high:
+                high = interval.high
             found = False
-        else: 
-            if idx == 1: 
+        else:
+            if idx == 1:
                 """ First is single """
-                return (True, (low, high))
+                return (True, Interval(low, high))
             elif idx == idx_max:
                 """ Last is single """
                 return (True, interval)
-            elif found == True: 
+            elif found == True:
                 """ Single in the middle """
-                return (True, (low, high))
-            low = interval[0]
-            high = interval[1]
+                return (True, Interval(low, high))
+            low = interval.low
+            high = interval.high
             found = True
 
     return (False, None)
@@ -142,10 +150,10 @@ def has_overlapping_intervals(list_of_intervals, mode):
 def sanity_check():
     """ Sanity check """
     print("[RUN    ] Sanity check")
-    interval_a = (0, 4)
-    interval_b = (3, 5)
-    interval_c = (4, 5)
-    interval_d = (6, 7)
+    interval_a = Interval(0, 4)
+    interval_b = Interval(3, 5)
+    interval_c = Interval(4, 5)
+    interval_d = Interval(6, 7)
     """ Test helper functions """
     print("[RUN    ] Test helper functions")
     assert(overlaps(interval_a, interval_b))
@@ -159,31 +167,31 @@ def sanity_check():
 
 def run_small_examples():
     """ Sanity check """
-    unmatched_first = [(0,3), (4,6), (5,7), (7,10)]
-    unmatched_last = [(4,6), (5,7), (7,10), (25,50)]
-    unmatched_middle = [(3,5), (4,6),(7,9) ,(10,30), (10,20)]
-    matched = [(1,3), (2,4), (3,5), (4,6)]
-    
+    unmatched_first = [Interval(0,3), Interval(4,6), Interval(5,7), Interval(7,10)]
+    unmatched_last = [Interval(4,6), Interval(5,7), Interval(7,10), Interval(25,50)]
+    unmatched_middle = [Interval(3,5), Interval(4,6), Interval(7,9), Interval(10,30), Interval(10,20)]
+    matched = [Interval(1,3), Interval(2,4), Interval(3,5), Interval(4,6)]
+
     print("[RUN    ] Sanity check: naive approach")
     result, interval = has_overlapping_intervals(unmatched_first, Methode.NAIVE)
-    assert(result == True and interval == (0,3))
+    assert(result == True and interval == Interval(0,3))
     result, interval = has_overlapping_intervals(unmatched_last, Methode.NAIVE)
-    assert(result == True and interval == (25,50))
+    assert(result == True and interval == Interval(25,50))
     result, interval = has_overlapping_intervals(unmatched_middle, Methode.NAIVE)
-    assert(result == True and interval == (7,9))
+    assert(result == True and interval == Interval(7,9))
     result, interval = has_overlapping_intervals(matched, Methode.NAIVE)
     assert(not result)
     print("[SUCCESS] Sanity check: naive approach")
 
-    
+
 
     print("[RUN    ] Sanity check: dynamic approach")
     result, interval = has_overlapping_intervals(unmatched_first, Methode.DYNAMIC)
-    assert(result == True and interval == (0,3))
+    assert(result == True and interval == Interval(0,3))
     result, interval = has_overlapping_intervals(unmatched_last, Methode.DYNAMIC)
-    assert(result == True and interval == (25,50))
+    assert(result == True and interval == Interval(25,50))
     result, interval = has_overlapping_intervals(unmatched_middle, Methode.DYNAMIC)
-    assert(result == True and interval == (7,9))
+    assert(result == True and interval == Interval(7,9))
     result, interval = has_overlapping_intervals(matched, Methode.DYNAMIC)
     assert(not result)
     print("[SUCCESS] Sanity check: dynamic approach")
@@ -204,7 +212,7 @@ def execute_test(list):
     end = time.time()
     delta_naive = end - start
     print("[SUCCESS] Execute test: naive approach with '{}'".format(naive_result))
-    
+
 
     print("[RUN    ] Execute test: dynamic approach")
     start = time.time()
@@ -214,7 +222,7 @@ def execute_test(list):
     print("[SUCCESS] Execute test: dynamic approach with '{}'".format(dynamic_result))
 
     assert(naive_result == dynamic_result)
-    """Print results""" 
+    """Print results"""
     print("[EVAL   ] Naive Approach took    {} || {:12}us".format(s_to_timeformat(delta_naive),s_to_us(delta_naive)))
     print("[EVAL   ] Dynamic Approach took  {} || {:12}us".format(s_to_timeformat(delta_dynamic), s_to_us(delta_dynamic)))
 
@@ -225,35 +233,35 @@ def execute_random_tests(n):
         max_size = 2 ** 20
         for i in range(0, 1000000):
             rand_one = random.randrange(2**32)
-            rand_two = random.randrange(2**32) 
+            rand_two = random.randrange(2**32)
             if rand_one > rand_two:
                 delta = abs(rand_one - rand_two) - max_size
                 if delta > 0:
-                    rand_one = rand_two + max_size         
-                test_data.append((rand_two, rand_one))
+                    rand_one = rand_two + max_size
+                test_data.append(Interval(rand_two, rand_one))
             else:
                 delta = abs(rand_one - rand_two) - max_size
                 if delta > 0:
-                    rand_two = rand_one + max_size    
-                test_data.append((rand_one, rand_two))
+                    rand_two = rand_one + max_size
+                test_data.append(Interval(rand_one, rand_two))
         execute_test(test_data)
 
-def read_from_disk(file_name):   
+def read_from_disk(file_name):
     input_list = []
     with open(file_name, newline='') as csvfile:
         file_reader = csv.reader(csvfile, dialect='excel')
         for (idx, row) in enumerate(file_reader):
             if idx == 0:
                 continue
-            input_list.append((int(row[0]), int(row[1])))
+            input_list.append(Interval(int(row[0]), int(row[1])))
     return input_list
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find an interval that doesn't overlap with any other interval in a list")
-    parser.add_argument('--file-with-overlap', type=str, default="overlapping_intervals.csv") 
-    parser.add_argument('--file-without-overlap', type=str, default="no_overlapping_intervals.csv") 
-    parser.add_argument('--number-of-rand-runs', type=int, default=0) 
-  
+    parser.add_argument('--file-with-overlap', type=str, default="overlapping_intervals.csv")
+    parser.add_argument('--file-without-overlap', type=str, default="no_overlapping_intervals.csv")
+    parser.add_argument('--number-of-rand-runs', type=int, default=0)
+
     args = parser.parse_args()
 
 
